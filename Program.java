@@ -4,135 +4,119 @@ import java.util.Scanner;
 public class Program {
     public static void main(String[] args){
 
-        Scanner entrada = new Scanner(System.in); // A leitura do arquivo é feita através da classe Scanner por desvio de fluxo
-        ArrayList<Integer> lista = new ArrayList<Integer>(); //lista de páginas
-        int aux = entrada.nextInt(); // Número de quadros
-        int aux1 = 0;
+        Scanner entrada = new Scanner(System.in); 
+        ArrayList<Integer> lista = new ArrayList<Integer>(); 
+        int numQdr = entrada.nextInt(); 
+        int numQdr1 = 0;
 
         while(entrada.hasNextInt()){
-            aux1 = entrada.nextInt();
-            lista.add(aux1);
+            numQdr1 = entrada.nextInt();
+            lista.add(numQdr1);
         }
 
-        FIFO(lista, aux);
-        OTM(lista, aux);
-        //LRU(lista, aux);
+        Fifo(lista, numQdr);
+        Otm(lista, numQdr);
+        Lru(lista, numQdr);
     }
 
 
-    public static void FIFO(ArrayList<Integer> lista, int aux){
+    public static void Fifo(ArrayList<Integer> lista, int numQdr){
         
-        int [] quadros = new int[aux]; //Array com a quantidade de quadros livres
+        int [] quadrosLivres = new int[numQdr]; 
         int faltaPag = 0;
         int i = 0;
-        int primeiroAEntrar = 0;
-        boolean cont = true; // Variavel utilizada para verificar se há falta de páginas
+        int auxFifo = 0;
+        boolean isLackPag = true; 
 
-        /*Executa até percorrer toda a lista de páginas */
         while(i < lista.size()){
+            for(; i < numQdr; i++){
+                quadrosLivres[i] = lista.get(i);
+                faltaPag++;
+            }
+            
+            for(int x = 0; x < numQdr; x++){
+                if(quadrosLivres[x] == lista.get(i)){
+                    isLackPag = false;
+                    break;
+                }else{
+                    isLackPag = true;
+                }
+                
+            }
+            
+            if(isLackPag){
+                quadrosLivres[auxFifo] = lista.get(i);
+                if(auxFifo == numQdr - 1){
+                    auxFifo = 0;
+                }else{
+                    auxFifo++;
+                }
 
-            /*Insere as primeiras faltas de páginas nos quadros*/
-            while(i < aux){
-                quadros[i] = lista.get(i);
-                i++;
                 faltaPag++;
             }
 
-            /*Verifica a falta de página para habilitar a troca nos quadros caso haja falta de página*/
-                int x = 0;
-                while(x < aux){
-                    if(quadros[x] == lista.get(i)){
-                        cont = false;
-                        break;
-                    }else{
-                        cont = true;
-                    }
-                    x++;
-                }
-
-                /*Realiza a troca nos quadros*/
-                if(cont){
-                    quadros[primeiroAEntrar] = lista.get(i);
-
-                    if(primeiroAEntrar == aux - 1)
-                        primeiroAEntrar = 0;
-                    else
-                        primeiroAEntrar++;
-
-                    faltaPag++;
-                }
-
-            i++;
-        }
+        i++;
+    }
 
         System.out.println("FIFO " + faltaPag);
     }
 
 
-    public static void OTM(ArrayList<Integer> lista, int aux){
-        int [] quadros = new int[aux]; //Array com a quantidade de quadros livres
+    public static void Otm(ArrayList<Integer> lista, int numQdr){
+        int [] quadrosLivres = new int[numQdr]; 
         int faltaPag = 0;
         int i = 0;
-        boolean cont = true; // Variavel utilizada para verificar se há falta de páginas
+        boolean isLackPag = true; 
 
-        /*Executa até percorrer toda a lista de páginas */
         while(i < lista.size()){
 
-            /*Insere as primeiras faltas de páginas nos quadros*/
-            while(i < aux){
-                quadros[i] = lista.get(i);
-                i++;
+            for(; i < numQdr; i++){
+                quadrosLivres[i] = lista.get(i);
                 faltaPag++;
             }
-
-            /*Verifica a falta de página para habilitar a troca nos quadros caso haja falta de página*/
-            int x = 0;
-            while(x < aux){
-                if(quadros[x] == lista.get(i)){
-                   cont = false;
-                   break;
+            
+            for(int x = 0; x < numQdr; x++){
+                if(quadrosLivres[x] == lista.get(i)){
+                    isLackPag = false;
+                    break;
                 }else{
-                    cont = true;
+                    isLackPag = true;
                 }
-                x++;
+                
             }
 
-            if(cont){
+            if(isLackPag){
 
                 int j = i + 1;
-                int maisDist = 0; // Variável que contém a página mais distante, ou seja, a que será substituída
-                int [] dist = new int[aux];
-                /*Verifica qual o elemento mais distante entre os elementos da lista que está em um dos quadros */
+                int pagDistante = 0; 
+                int [] dist = new int[numQdr];
+               
                 ArrayList<Integer> elementosDaLista = new ArrayList<Integer>();
+                
                 while(j < lista.size()){
-                    int jj = 0;
-                    while(jj < aux){
-                        if(lista.get(j) == quadros[jj] && !elementosDaLista.contains(lista.get(j))){
-                            maisDist = lista.get(j);
-                            dist[jj]++;
+                    
+                    for(int k = 0;k < numQdr; k++){
+                        if(lista.get(j) == quadrosLivres[k] && !elementosDaLista.contains(lista.get(j))){
+                            pagDistante = lista.get(j);
+                            dist[k]++;
                             elementosDaLista.add(lista.get(j));
-                            //break;
                         }
-                        jj++;
                     }
                     j++;
                 }
-
-                /* Verifica se a variável maisDist realmente contém a página mais distante*/
-                for(int z = 0; z < aux; z++){
+                for(int z = 0; z < numQdr; z++){
                     if(dist[z] == 0)
-                        maisDist = quadros[z];
+                        pagDistante = quadrosLivres[z];
                 }
 
-                /*Realiza a troca nos quadros*/
-                int troca = 0;
-                while(troca < aux){
-                    if(maisDist == quadros[troca]){
-                        quadros[troca] = lista.get(i);
+                
+                for(int trocaQuad = 0;trocaQuad < numQdr;trocaQuad++){
+                    if(pagDistante == quadrosLivres[trocaQuad]){
+                        quadrosLivres[trocaQuad] = lista.get(i);
                         faltaPag++;
                         break;
                     }
-                    troca++;
+
                 }
 
             }
@@ -143,71 +127,59 @@ public class Program {
         System.out.println("OTM " + faltaPag);
     }
 
-    public static void LRU(ArrayList<Integer> lista, int aux){
-        int [] quadros = new int[aux]; //Array com a quantidade de quadros livres
+    public static void Lru(ArrayList<Integer> lista, int numQdr){
+        int [] quadrosLivres = new int[numQdr]; 
         int faltaPag = 0;
         int i = 0;
-        boolean cont = true;
+        boolean isLackPag = true; 
 
-        /*Executa até percorrer toda a lista de páginas */
         while(i < lista.size()){
 
-            /*Insere as primeiras faltas de páginas nos quadros*/
-            while(i < aux){
-                quadros[i] = lista.get(i);
-                i++;
+            for(; i < numQdr; i++){
+                quadrosLivres[i] = lista.get(i);
                 faltaPag++;
             }
-
-            /*Verifica a falta de página para habilitar a troca nos quadros caso haja falta de página*/
-            int x = 0;
-            while(x < aux){
-                if(quadros[x] == lista.get(i)){
-                   cont = false;
-                   break;
+            
+            for(int x = 0; x < numQdr; x++){
+                if(quadrosLivres[x] == lista.get(i)){
+                    isLackPag = false;
+                    break;
                 }else{
-                    cont = true;
+                    isLackPag = true;
                 }
-                x++;
+                
             }
 
-            if(cont){
+            if(isLackPag){
                 int j = i - 1;
-                int maisDist = 0;
-                /*Verifica qual o elemento mais distante entre os elementos da lista que está em um dos quadros */
+                int pagDistante = 0;
                 ArrayList<Integer> elementosDaLista = new ArrayList<Integer>();
+                
                 while(j >= 0){
-                    int jj = 0;
-                    while(jj < aux){
-                        if(lista.get(j) == quadros[jj] && !elementosDaLista.contains(lista.get(j))){
-                            maisDist = lista.get(j);
+                    
+                    for(int k = 0; k < numQdr; k++){
+                        if(lista.get(j) == quadrosLivres[k] && !elementosDaLista.contains(lista.get(j))){
+                            pagDistante = lista.get(j);
                             elementosDaLista.add(lista.get(j));
                             break;
                         }
-                        jj++;
                     }
                     j--;
                 }
-
-                /*Realiza a troca nos quadros*/
-                int troca = 0;
-                while(troca < aux){
-                    if(maisDist == quadros[troca]){
-                        quadros[troca] = lista.get(i);
+                
+                for(int trocaQuad = 0; trocaQuad < numQdr; trocaQuad++){
+                    if(pagDistante == quadrosLivres[trocaQuad]){
+                        quadrosLivres[trocaQuad] = lista.get(i);
                         faltaPag++;
                         break;
                     }
-                    troca++;
                 }
-
             }
 
             i++;
+        
         }
 
         System.out.println("LRU " + faltaPag);
     }
-
-
-
 }
