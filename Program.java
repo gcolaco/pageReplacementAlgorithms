@@ -143,6 +143,70 @@ public class Program {
         System.out.println("OTM " + faltaPag);
     }
 
+    public static void LRU(ArrayList<Integer> lista, int aux){
+        int [] quadros = new int[aux]; //Array com a quantidade de quadros livres
+        int faltaPag = 0;
+        int i = 0;
+        boolean cont = true;
+
+        /*Executa até percorrer toda a lista de páginas */
+        while(i < lista.size()){
+
+            /*Insere as primeiras faltas de páginas nos quadros*/
+            while(i < aux){
+                quadros[i] = lista.get(i);
+                i++;
+                faltaPag++;
+            }
+
+            /*Verifica a falta de página para habilitar a troca nos quadros caso haja falta de página*/
+            int x = 0;
+            while(x < aux){
+                if(quadros[x] == lista.get(i)){
+                   cont = false;
+                   break;
+                }else{
+                    cont = true;
+                }
+                x++;
+            }
+
+            if(cont){
+                int j = i - 1;
+                int maisDist = 0;
+                /*Verifica qual o elemento mais distante entre os elementos da lista que está em um dos quadros */
+                ArrayList<Integer> elementosDaLista = new ArrayList<Integer>();
+                while(j >= 0){
+                    int jj = 0;
+                    while(jj < aux){
+                        if(lista.get(j) == quadros[jj] && !elementosDaLista.contains(lista.get(j))){
+                            maisDist = lista.get(j);
+                            elementosDaLista.add(lista.get(j));
+                            break;
+                        }
+                        jj++;
+                    }
+                    j--;
+                }
+
+                /*Realiza a troca nos quadros*/
+                int troca = 0;
+                while(troca < aux){
+                    if(maisDist == quadros[troca]){
+                        quadros[troca] = lista.get(i);
+                        faltaPag++;
+                        break;
+                    }
+                    troca++;
+                }
+
+            }
+
+            i++;
+        }
+
+        System.out.println("LRU " + faltaPag);
+    }
 
 
 
